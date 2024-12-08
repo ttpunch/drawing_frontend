@@ -23,7 +23,7 @@ interface AdminStats {
 
 export default function Dashboard() {
   // Fetch general stats (no auto-refresh)
-  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<AdminStats>(
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useQuery<AdminStats>(
     ['adminStats'],
     async () => {
       try {
@@ -38,13 +38,13 @@ export default function Dashboard() {
       retry: 3,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       onError: (error: any) => {
-        console.error('Query error:', error);
+        // Error handling without console.log
       }
     }
   );
 
   // Fetch page views with auto-refresh
-  const { data: pageViewData } = useQuery<{ pageViews: number }>(
+  const { data: pageViewData, isLoading: pageViewsLoading } = useQuery<{ pageViews: number }>(
     ['pageViews'],
     async () => {
       try {
@@ -63,7 +63,7 @@ export default function Dashboard() {
   );
 
   // Early return for loading state
-  if (statsLoading || pageViewData.isLoading) {
+  if (statsLoading || pageViewsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -82,7 +82,7 @@ export default function Dashboard() {
           <h2 className="text-red-600 text-xl font-semibold mb-2">Error Loading Dashboard</h2>
           <p className="text-gray-700 mb-4">{statsError instanceof Error ? statsError.message : 'An error occurred'}</p>
           <button 
-            onClick={() => stats.refetch()}
+            onClick={() => refetchStats()}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           >
             Try Again
@@ -90,6 +90,10 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  }
+
+  if (!stats) {
+    return null;
   }
 
   return (
