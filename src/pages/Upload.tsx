@@ -69,12 +69,23 @@ export default function Upload() {
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('description', data.description);
-    if (data.file?.[0]) {
-      formData.append('image', data.file[0], data.file[0].name);
-    } else {
+    
+    if (!data.file || !data.file[0]) {
       toast.error('Please select an image to upload');
       return;
     }
+
+    console.log('File:', data.file[0]);
+    console.log('File name:', data.file[0].name);
+    console.log('File type:', data.file[0].type);
+    console.log('File size:', data.file[0].size);
+
+    formData.append('image', data.file[0], data.file[0].name);
+
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
     uploadMutation.mutate(formData);
   };
 
