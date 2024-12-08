@@ -49,21 +49,25 @@ export default function Upload() {
     maxFiles: 1
   });
 
-  const uploadMutation = useMutation(
-    async (data: FormData) => {
-      const response = await api.post('/drawings', data);
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await api.post('/drawings', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return response.data;
     },
-    {
-      onSuccess: (data) => {
-        toast.success('Drawing uploaded successfully');
-        navigate(`/drawing/${data._id}`);
-      },
-      onError: () => {
-        toast.error('Failed to upload drawing');
-      }
+    onSuccess: () => {
+      toast.success('Drawing uploaded successfully!');
+      // queryClient.invalidateQueries(['drawings']); // This line is commented out because queryClient is not defined in the provided code
+      navigate('/drawings');
+    },
+    onError: (error: any) => {
+      console.error('Upload error:', error);
+      toast.error(error.response?.data?.message || 'Failed to upload drawing');
     }
-  );
+  });
 
   const onSubmit = async (data: UploadForm) => {
     const formData = new FormData();
@@ -75,15 +79,16 @@ export default function Upload() {
       return;
     }
 
-    console.log('File:', data.file[0]);
-    console.log('File name:', data.file[0].name);
-    console.log('File type:', data.file[0].type);
-    console.log('File size:', data.file[0].size);
+    console.log('File details:', {
+      name: data.file[0].name,
+      type: data.file[0].type,
+      size: data.file[0].size
+    });
 
-    formData.append('image', data.file[0], data.file[0].name);
+    formData.append('image', data.file[0]);
 
     for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
+      console.log('FormData entry:', pair[0], pair[1]);
     }
 
     uploadMutation.mutate(formData);
