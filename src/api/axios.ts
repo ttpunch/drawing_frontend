@@ -4,6 +4,10 @@ import { useAuthStore } from '../store/authStore';
 const api = axios.create({
   baseURL: 'https://drawing-backend-15rx.onrender.com/api',
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
 });
 
 // Request interceptor
