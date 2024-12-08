@@ -70,7 +70,10 @@ export default function Upload() {
     formData.append('title', data.title);
     formData.append('description', data.description);
     if (data.file?.[0]) {
-      formData.append('image', data.file[0]);
+      formData.append('image', data.file[0], data.file[0].name);
+    } else {
+      toast.error('Please select an image to upload');
+      return;
     }
     uploadMutation.mutate(formData);
   };
