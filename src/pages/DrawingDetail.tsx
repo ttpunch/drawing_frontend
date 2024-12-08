@@ -61,9 +61,8 @@ export default function DrawingDetail() {
         reset();
         toast.success('Comment added successfully');
       },
-      onError: (error: any) => {
-        console.error('Comment error:', error);
-        toast.error(error.response?.data?.message || 'Failed to add comment');
+      onError: (error) => {
+        toast.error('Failed to add comment');
       },
     }
   );

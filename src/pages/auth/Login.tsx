@@ -23,7 +23,6 @@ export default function Login() {
     },
     {
       onSuccess: (data) => {
-        console.log('Login Response:', data);
         setToken(data.token);
         setUser(data.user);
         toast.success('Login successful');

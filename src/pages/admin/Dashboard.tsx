@@ -23,21 +23,13 @@ interface AdminStats {
 
 export default function Dashboard() {
   // Fetch general stats (no auto-refresh)
-  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useQuery<AdminStats>(
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<AdminStats>(
     ['adminStats'],
     async () => {
       try {
         const response = await api.get('/admin/stats');
-        console.log('Admin stats response:', response.data);
         return response.data;
-      } catch (error: any) {
-        console.error('Error fetching admin stats:', error);
-        // Check for specific error types
-        if (error.response?.status === 401) {
-          throw new Error('Authentication required. Please log in again.');
-        } else if (error.response?.status === 403) {
-          throw new Error('Access denied. Admin privileges required.');
-        }
+      } catch (error) {
         throw error;
       }
     },
@@ -51,11 +43,6 @@ export default function Dashboard() {
     }
   );
 
-  // Debug logs
-  console.log('Stats loading:', statsLoading);
-  console.log('Stats error:', statsError);
-  console.log('Stats data:', stats);
-
   // Fetch page views with auto-refresh
   const { data: pageViewData } = useQuery<{ pageViews: number }>(
     ['pageViews'],
@@ -64,7 +51,6 @@ export default function Dashboard() {
         const response = await api.get('/admin/stats/pageviews');
         return response.data;
       } catch (error) {
-        console.error('Error fetching page views:', error);
         throw error;
       }
     },
@@ -77,7 +63,7 @@ export default function Dashboard() {
   );
 
   // Early return for loading state
-  if (statsLoading) {
+  if (statsLoading || pageViewData.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -96,7 +82,7 @@ export default function Dashboard() {
           <h2 className="text-red-600 text-xl font-semibold mb-2">Error Loading Dashboard</h2>
           <p className="text-gray-700 mb-4">{statsError instanceof Error ? statsError.message : 'An error occurred'}</p>
           <button 
-            onClick={() => refetchStats()}
+            onClick={() => stats.refetch()}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           >
             Try Again

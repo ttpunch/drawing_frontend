@@ -22,11 +22,9 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAdmin: false,
       setToken: (token: string | null) => {
-        console.log('Setting token:', token);
         set({ token });
       },
       setUser: (user: AuthState['user']) => {
-        console.log('Setting user:', user);
         set({ 
           user,
           isAdmin: user?.role === 'admin'
@@ -40,7 +38,7 @@ export const useAuthStore = create<AuthState>()(
       version: 1,
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
-        console.log('Rehydrating state:', state);
+        return state;
       },
     }
   )
